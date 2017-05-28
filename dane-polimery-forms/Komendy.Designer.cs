@@ -38,16 +38,20 @@
             // 
             // commandsTextBox
             // 
-            this.commandsTextBox.Location = new System.Drawing.Point(26, 22);
+            this.commandsTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.commandsTextBox.Location = new System.Drawing.Point(12, 12);
             this.commandsTextBox.Name = "commandsTextBox";
-            this.commandsTextBox.Size = new System.Drawing.Size(278, 308);
+            this.commandsTextBox.Size = new System.Drawing.Size(377, 325);
             this.commandsTextBox.TabIndex = 1;
             this.commandsTextBox.Text = "";
             this.commandsTextBox.TextChanged += new System.EventHandler(this.CommandsTextBox_TextChanged);
             // 
             // loadfileButton
             // 
-            this.loadfileButton.Location = new System.Drawing.Point(361, 22);
+            this.loadfileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.loadfileButton.Location = new System.Drawing.Point(395, 13);
             this.loadfileButton.Name = "loadfileButton";
             this.loadfileButton.Size = new System.Drawing.Size(91, 23);
             this.loadfileButton.TabIndex = 3;
@@ -57,7 +61,8 @@
             // 
             // ButtonOk
             // 
-            this.ButtonOk.Location = new System.Drawing.Point(361, 175);
+            this.ButtonOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ButtonOk.Location = new System.Drawing.Point(395, 166);
             this.ButtonOk.Name = "ButtonOk";
             this.ButtonOk.Size = new System.Drawing.Size(91, 23);
             this.ButtonOk.TabIndex = 4;
@@ -67,7 +72,8 @@
             // 
             // ButtonCancel
             // 
-            this.ButtonCancel.Location = new System.Drawing.Point(361, 70);
+            this.ButtonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ButtonCancel.Location = new System.Drawing.Point(395, 61);
             this.ButtonCancel.Name = "ButtonCancel";
             this.ButtonCancel.Size = new System.Drawing.Size(91, 23);
             this.ButtonCancel.TabIndex = 5;
@@ -77,7 +83,8 @@
             // 
             // ButtonValidate
             // 
-            this.ButtonValidate.Location = new System.Drawing.Point(361, 146);
+            this.ButtonValidate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ButtonValidate.Location = new System.Drawing.Point(395, 137);
             this.ButtonValidate.Name = "ButtonValidate";
             this.ButtonValidate.Size = new System.Drawing.Size(91, 23);
             this.ButtonValidate.TabIndex = 6;
@@ -87,7 +94,8 @@
             // 
             // ButtonErLog
             // 
-            this.ButtonErLog.Location = new System.Drawing.Point(361, 117);
+            this.ButtonErLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ButtonErLog.Location = new System.Drawing.Point(395, 108);
             this.ButtonErLog.Name = "ButtonErLog";
             this.ButtonErLog.Size = new System.Drawing.Size(91, 23);
             this.ButtonErLog.TabIndex = 7;

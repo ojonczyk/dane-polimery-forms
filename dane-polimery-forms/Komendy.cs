@@ -15,40 +15,55 @@ namespace dane_polimery_forms
 {
     public partial class CommandForm : Form
     {
-        public CommandForm()
+        public CommandForm(ArrayList _commands)
         {
             InitializeComponent();
             ButtonOk.Enabled = false;
+            ButtonErLog.Enabled = false;
+            if (_commands != null)
+            {
+                foreach (int[] line in _commands)
+                {
+                    line[0]/= 1000;
+                    commandsTextBox.Text += string.Join(";", line) + ";" + Environment.NewLine;
+                    line[0] *= 1000;
+                }
+            }
         }
 
+        Form error_form;
         ArrayList commands = new ArrayList();
-        /*int minButelka = 1;
+        List<Tuple<int, String>> errors = new List<Tuple<int, string>>();
+        /*
         int maxButelka = 4;
         int minCzas = 1;
         int maxCzas = Int32.MaxValue;
         int minPrzeplyw = 1;
         int maxPrzeplyw = Int32.MaxValue;*/
         String nazwaZestawuKomend;
+
         private void CommandsTextBox_TextChanged(object sender, EventArgs e)
         {
             ButtonOk.Enabled = false;
+            ButtonErLog.Enabled = false;
             nazwaZestawuKomend = "Własny";
         }
 
         private void ButtonLoadfile_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openfiledialog1 = new OpenFileDialog();
-            openfiledialog1.InitialDirectory = System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            openfiledialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-            openfiledialog1.FilterIndex = 2;
-            openfiledialog1.RestoreDirectory = true;
-
-            if (openfiledialog1.ShowDialog() == DialogResult.OK)
+            OpenFileDialog openFileDialog = new OpenFileDialog()
+            {
+                InitialDirectory = System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*",
+                FilterIndex = 1,
+                RestoreDirectory = true
+            };
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 commandsTextBox.Clear();
                 Stream myStream = null;
                 //commandsTextBox.Text = openfiledialog1.FileName;
-                if ((myStream = openfiledialog1.OpenFile()) != null)
+                if ((myStream = openFileDialog.OpenFile()) != null)
                 {
                     using (myStream)
                     {
@@ -66,7 +81,7 @@ namespace dane_polimery_forms
                     }
                 }
             }
-            nazwaZestawuKomend = openfiledialog1.SafeFileName;
+            nazwaZestawuKomend = openFileDialog.SafeFileName;
         }
 
         private void ButtonCancel_Click(object sender, EventArgs e)
@@ -76,19 +91,49 @@ namespace dane_polimery_forms
 
         private void ButtonOK_Click(object sender, EventArgs e)
         {
-            ((MainWindow)this.Owner).mainTextBox1.Text = nazwaZestawuKomend;
-            ToolTip TP = new ToolTip();
-            TP.InitialDelay = 0;
-            TP.SetToolTip(((MainWindow)this.Owner).mainTextBox1, nazwaZestawuKomend);
+            if (error_form != null)
+            {
+                if (error_form.Visible)
+                {
+                    error_form.Close();
+                }
+            }
+
+            foreach(int[] arg in commands)
+            {
+                arg[0] *= 1000;
+            }
+
+            ((MainWindow)this.Owner).commandsTextBox.Text = nazwaZestawuKomend;
+            ((MainWindow)this.Owner).commandsLoaded = true;
+            ToolTip TP = new ToolTip()
+            {
+                InitialDelay = 0
+            };
+            TP.SetToolTip(((MainWindow)this.Owner).commandsTextBox, nazwaZestawuKomend);
             ((MainWindow)this.Owner).SetCommands(commands);
             this.Close();
         }
 
+        private void LineToRed(int lineNum)
+        {
+            int first = commandsTextBox.GetFirstCharIndexFromLine(lineNum);
+            int last = commandsTextBox.GetFirstCharIndexFromLine(lineNum+1);
+            if ( last == -1 )
+            {
+                last = commandsTextBox.TextLength;
+            }
+            commandsTextBox.Select(first, last-first);
+            commandsTextBox.SelectionColor = Color.Red;
+            commandsTextBox.DeselectAll();
+        }
+
         private void ButtonValidate_Click(object sender, EventArgs e)
         {
+            errors.Clear();
             if (string.IsNullOrWhiteSpace(commandsTextBox.Text))
             {
-                var msgbox = MessageBox.Show("Wpisz komendy lub załaduj plik.","Bład",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                var msgbox = MessageBox.Show("Wpisz komendy lub załaduj plik.","Błąd",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 return;
             }
             bool success = true; ;
@@ -100,13 +145,12 @@ namespace dane_polimery_forms
                     continue;
                 }
 
-                string[] newLines = commandsTextBox.Lines;
                 string[] tmp = line.Split(new Char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                 if(tmp.Length != 4)
                 {
-                    newLines[i] = "ERROR";
                     success = false;
-                    commandsTextBox.Lines = newLines;
+                    LineToRed(i);
+                    errors.Add(Tuple.Create(i, "Zła liczba argumentów."));
                     continue;
                 }
 
@@ -115,9 +159,10 @@ namespace dane_polimery_forms
                 {
                     if(Int32.TryParse(tmp[j], out commandLine[j]) == false)
                     {
-                        newLines[i] = "PARSING ERROR";
+                        //newLines[i] = "PARSING ERROR";
+                        LineToRed(i);
+                        errors.Add(Tuple.Create(i,"Błąd parsowania argumentu( "+tmp[j]+" ) do Int32."));
                         success = false;
-                        commandsTextBox.Lines = newLines;
                         break;
                     }
                 }
@@ -132,14 +177,25 @@ namespace dane_polimery_forms
             if (success)
             {
                 ButtonOk.Enabled = true;
+            } else
+            {
+                ButtonErLog.Enabled = true;
             }
             
         }
 
         private void ButtonErLog_Click(object sender, EventArgs e)
         {
-            Form error_form = new FormErrorLog();
-            error_form.ShowDialog();
+            if(error_form != null)
+            {
+                if (error_form.Visible)
+                {
+                    error_form.Close();
+                }
+            }
+            
+            error_form = new FormErrorLog(errors);
+            error_form.Show();
         }
     }
 }
