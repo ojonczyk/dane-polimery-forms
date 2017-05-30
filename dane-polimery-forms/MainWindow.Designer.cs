@@ -50,6 +50,8 @@
             this.ExpNumberLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.ButtonOutFile = new System.Windows.Forms.Button();
+            this.ButtonSpect = new System.Windows.Forms.Button();
+            this.LabelSpect = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.widmo)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -97,11 +99,11 @@
             // frequencyLabel
             // 
             this.frequencyLabel.AutoSize = true;
-            this.frequencyLabel.Location = new System.Drawing.Point(357, 56);
+            this.frequencyLabel.Location = new System.Drawing.Point(365, 56);
             this.frequencyLabel.Name = "frequencyLabel";
-            this.frequencyLabel.Size = new System.Drawing.Size(164, 13);
+            this.frequencyLabel.Size = new System.Drawing.Size(156, 13);
             this.frequencyLabel.TabIndex = 5;
-            this.frequencyLabel.Text = "Odstęp odczytu spektrometru(ms)";
+            this.frequencyLabel.Text = "Odstęp odczytu spektrometru(s)";
             // 
             // frequencyTextBox
             // 
@@ -195,8 +197,8 @@
             // ExpNumberLabel
             // 
             this.ExpNumberLabel.Name = "ExpNumberLabel";
-            this.ExpNumberLabel.Size = new System.Drawing.Size(54, 17);
-            this.ExpNumberLabel.Text = "Eksp. nr: ";
+            this.ExpNumberLabel.Size = new System.Drawing.Size(35, 17);
+            this.ExpNumberLabel.Text = "Linia ";
             this.ExpNumberLabel.Visible = false;
             // 
             // timer
@@ -213,11 +215,32 @@
             this.ButtonOutFile.UseVisualStyleBackColor = true;
             this.ButtonOutFile.Click += new System.EventHandler(this.ButtonOutFile_Click);
             // 
+            // ButtonSpect
+            // 
+            this.ButtonSpect.Location = new System.Drawing.Point(527, 112);
+            this.ButtonSpect.Name = "ButtonSpect";
+            this.ButtonSpect.Size = new System.Drawing.Size(88, 23);
+            this.ButtonSpect.TabIndex = 17;
+            this.ButtonSpect.Text = "Spektrometr";
+            this.ButtonSpect.UseVisualStyleBackColor = true;
+            this.ButtonSpect.Click += new System.EventHandler(this.ButtonSpect_Click);
+            // 
+            // LabelSpect
+            // 
+            this.LabelSpect.AutoSize = true;
+            this.LabelSpect.Location = new System.Drawing.Point(391, 117);
+            this.LabelSpect.Name = "LabelSpect";
+            this.LabelSpect.Size = new System.Drawing.Size(130, 13);
+            this.LabelSpect.TabIndex = 18;
+            this.LabelSpect.Text = "Konfiguracja spektrometru";
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(817, 512);
+            this.Controls.Add(this.LabelSpect);
+            this.Controls.Add(this.ButtonSpect);
             this.Controls.Add(this.ButtonOutFile);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.CommentLabel);
@@ -262,6 +285,8 @@
         private System.Windows.Forms.Timer timer;
         private System.Windows.Forms.Button ButtonOutFile;
         private System.Windows.Forms.ToolStripStatusLabel ExpNumberLabel;
+        private System.Windows.Forms.Button ButtonSpect;
+        private System.Windows.Forms.Label LabelSpect;
     }
 }
 

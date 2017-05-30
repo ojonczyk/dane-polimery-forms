@@ -24,9 +24,7 @@ namespace dane_polimery_forms
             {
                 foreach (int[] line in _commands)
                 {
-                    line[0]/= 1000;
                     commandsTextBox.Text += string.Join(";", line) + ";" + Environment.NewLine;
-                    line[0] *= 1000;
                 }
             }
         }
@@ -99,11 +97,6 @@ namespace dane_polimery_forms
                 }
             }
 
-            foreach(int[] arg in commands)
-            {
-                arg[0] *= 1000;
-            }
-
             ((MainWindow)this.Owner).commandsTextBox.Text = nazwaZestawuKomend;
             ((MainWindow)this.Owner).commandsLoaded = true;
             ToolTip TP = new ToolTip()
@@ -131,12 +124,13 @@ namespace dane_polimery_forms
         private void ButtonValidate_Click(object sender, EventArgs e)
         {
             errors.Clear();
+            commands.Clear();
             if (string.IsNullOrWhiteSpace(commandsTextBox.Text))
             {
                 var msgbox = MessageBox.Show("Wpisz komendy lub załaduj plik.","Błąd",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 return;
             }
-            bool success = true; ;
+            bool success = true;
             for (int i = 0;i < commandsTextBox.Lines.Length; ++i)
             {
                 string line = commandsTextBox.Lines[i];
@@ -159,7 +153,6 @@ namespace dane_polimery_forms
                 {
                     if(Int32.TryParse(tmp[j], out commandLine[j]) == false)
                     {
-                        //newLines[i] = "PARSING ERROR";
                         LineToRed(i);
                         errors.Add(Tuple.Create(i,"Błąd parsowania argumentu( "+tmp[j]+" ) do Int32."));
                         success = false;

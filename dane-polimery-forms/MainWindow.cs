@@ -16,23 +16,34 @@ namespace dane_polimery_forms
     public partial class MainWindow : Form
     {
         ArrayList commands = null;
-        ArrayList data = new ArrayList();
+        ArrayList data;
+
         int frequency = 200;
         int timeSum;
         int elapsedTime;
         int singleExpTime = 0;
         int expNumber = 0;
         int dataReadCounter = 0;
+        int specIntegrTime;
+        int specAverage;
+        int specSum;
+        int specBoxcar;
+
         DateTime dateOfStart;
         DateTime dateOfEnd;
+
         public bool commandsLoaded = false;
         bool fileChosen = false;
+
         String filePath = null;
+        XDocument doc = null;
+
+
         public MainWindow()
         {
             InitializeComponent();
             widmo.Series[0].Points.DataBindY(DataReader.GetData());
-            frequencyTextBox.Text = "200";
+            frequencyTextBox.Text = "1";
             commandsTextBox.Enabled = false;
         }
 
@@ -97,15 +108,16 @@ namespace dane_polimery_forms
             double progress = (double)elapsedTime * 100.0 / (double)timeSum;
             progress = progress > 100 ? 100 : progress;
             ProgressLabel.Text = "Postęp: "+(int)progress+"%";
-            ExpNumberLabel.Text = "Eksp.nr: " + (expNumber + 1);
+            ExpNumberLabel.Text = "Krok nr: " + (expNumber + 1);
 
-            if (dataReadCounter == 0)
-            {
-                data.Add(new ArrayList());
-            }
-
-            ((ArrayList)data[expNumber]).Add(DataReader.GetData());
-            ++dataReadCounter;
+            doc.Root.Add(new XElement("blok",
+                        new XAttribute("krok_nr",expNumber+1),
+                        new XElement("czas", (DateTime.Now - dateOfStart).TotalSeconds.ToString("0.####")),
+                        new XElement("przeplyw_1", ((int[])commands[expNumber])[1]),
+                        new XElement("przeplyw_procent", ((int[])commands[expNumber])[2]),
+                        new XElement("nr_butelki", ((int[])commands[expNumber])[3]),
+                        new XElement("pomiar", string.Join(", ",DataReader.GetData()))
+                    ));
 
             //getdata from spectrometr
             if (elapsedTime <= timeSum)
@@ -135,13 +147,26 @@ namespace dane_polimery_forms
                 var msgbox = MessageBox.Show("Wypełnij wszystkie pola w okienku","Błąd",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 return;
             }
+
+            if (data != null)
+            {
+                data.Clear();
+            }
+
+            data = new ArrayList();
+            timeSum = 0;
+            elapsedTime = 0;
+            dataReadCounter = 0;
+            expNumber = 0;
+
             ProgressLabel.Visible = true;
             ExpNumberLabel.Visible = true;
             frequencyTextBox.Enabled = false;
-            outfileTextBox.Enabled = false;
-            timer.Interval = frequency;
-            timeSum = 0;
-            elapsedTime = 0;
+            timer.Interval = frequency*1000;
+
+            doc = new XDocument();
+            XElement root = new XElement("eksperymenty", new XElement("komentarz", commentTextBox.Text));
+            doc.Add(root);
 
             foreach(int[] commandLine in commands)
             {
@@ -149,7 +174,6 @@ namespace dane_polimery_forms
             }
 
             singleExpTime = ((int[])commands[0])[0];
-            expNumber = 0;
             commentTextBox.Text += "timeSUM: " + timeSum + Environment.NewLine;
             commentTextBox.Text += "singleExpTime[" + expNumber + "]: " + singleExpTime + Environment.NewLine;
             dateOfStart = DateTime.Now;
@@ -158,10 +182,7 @@ namespace dane_polimery_forms
 
         private void ButtonStop_Click(object sender, EventArgs e)
         {
-            ProgressLabel.Visible = false;
-            ExpNumberLabel.Visible = false;
-            timer.Enabled = false;
-            frequencyTextBox.Enabled = true;
+            timeSum = 0;
         }
 
         private void EndOfExperiment()
@@ -169,26 +190,14 @@ namespace dane_polimery_forms
             commentTextBox.Text += dateOfEnd = DateTime.Now;
             ProgressLabel.Visible = false;
             ExpNumberLabel.Visible = false;
-            XDocument doc = new XDocument();
-            XElement root = new XElement("eksperymenty",new XElement("komentarz",commentTextBox.Text));
-            doc.Add(root);
-            for (int i = 0; i < data.Count; ++i)
-            {
-                XElement expNode = new XElement("blok",
-                    new XElement("czas",dateOfEnd-dateOfStart),
-                    new XElement("przeplyw_1", ((int[])commands[i])[1]),
-                    new XElement("przeplyw_procent", ((int[])commands[i])[2]),
-                    new XElement("nr_butelki", ((int[])commands[i])[3])
-                    );
-                foreach(int[] liniaDanych in (ArrayList)data[i])
-                {
-                    expNode.Add(new XElement("pomiar",string.Join(",",liniaDanych)));
-                }
-                root.Add(expNode);
 
-            }
             doc.Save(filePath);
             System.Diagnostics.Process.Start(filePath);
+        }
+
+        private void ButtonSpect_Click(object sender, EventArgs e)
+        {
+            Form spectForm = new SpectForm(ref specIntegrTime, ref specAverage, ref specSum, ref specBoxcar);
         }
     }
 
