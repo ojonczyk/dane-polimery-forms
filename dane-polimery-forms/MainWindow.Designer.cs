@@ -88,7 +88,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(705, 22);
+            this.button1.Location = new System.Drawing.Point(705, 21);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(100, 23);
             this.button1.TabIndex = 4;
@@ -99,7 +99,7 @@
             // frequencyLabel
             // 
             this.frequencyLabel.AutoSize = true;
-            this.frequencyLabel.Location = new System.Drawing.Point(365, 56);
+            this.frequencyLabel.Location = new System.Drawing.Point(365, 86);
             this.frequencyLabel.Name = "frequencyLabel";
             this.frequencyLabel.Size = new System.Drawing.Size(156, 13);
             this.frequencyLabel.TabIndex = 5;
@@ -107,7 +107,7 @@
             // 
             // frequencyTextBox
             // 
-            this.frequencyTextBox.Location = new System.Drawing.Point(527, 53);
+            this.frequencyTextBox.Location = new System.Drawing.Point(527, 83);
             this.frequencyTextBox.Name = "frequencyTextBox";
             this.frequencyTextBox.Size = new System.Drawing.Size(172, 20);
             this.frequencyTextBox.TabIndex = 6;
@@ -116,7 +116,7 @@
             // outfileLabel
             // 
             this.outfileLabel.AutoSize = true;
-            this.outfileLabel.Location = new System.Drawing.Point(430, 86);
+            this.outfileLabel.Location = new System.Drawing.Point(430, 56);
             this.outfileLabel.Name = "outfileLabel";
             this.outfileLabel.Size = new System.Drawing.Size(91, 13);
             this.outfileLabel.TabIndex = 7;
@@ -125,14 +125,14 @@
             // outfileTextBox
             // 
             this.outfileTextBox.Enabled = false;
-            this.outfileTextBox.Location = new System.Drawing.Point(527, 83);
+            this.outfileTextBox.Location = new System.Drawing.Point(527, 53);
             this.outfileTextBox.Name = "outfileTextBox";
             this.outfileTextBox.Size = new System.Drawing.Size(172, 20);
             this.outfileTextBox.TabIndex = 8;
             // 
             // ButtonStop
             // 
-            this.ButtonStop.Location = new System.Drawing.Point(705, 51);
+            this.ButtonStop.Location = new System.Drawing.Point(705, 83);
             this.ButtonStop.Name = "ButtonStop";
             this.ButtonStop.Size = new System.Drawing.Size(100, 24);
             this.ButtonStop.TabIndex = 9;
@@ -207,7 +207,7 @@
             // 
             // ButtonOutFile
             // 
-            this.ButtonOutFile.Location = new System.Drawing.Point(705, 83);
+            this.ButtonOutFile.Location = new System.Drawing.Point(705, 53);
             this.ButtonOutFile.Name = "ButtonOutFile";
             this.ButtonOutFile.Size = new System.Drawing.Size(100, 23);
             this.ButtonOutFile.TabIndex = 16;

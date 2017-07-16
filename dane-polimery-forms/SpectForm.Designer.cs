@@ -36,11 +36,16 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.OKButton = new System.Windows.Forms.Button();
+            this.ButtonCancel = new System.Windows.Forms.Button();
+            this.indexComboBox = new System.Windows.Forms.ComboBox();
+            this.IndexLabel = new System.Windows.Forms.Label();
+            this.SetDefaultButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // IntegrTTextBox
             // 
-            this.IntegrTTextBox.Location = new System.Drawing.Point(110, 6);
+            this.IntegrTTextBox.Location = new System.Drawing.Point(107, 62);
             this.IntegrTTextBox.Name = "IntegrTTextBox";
             this.IntegrTTextBox.Size = new System.Drawing.Size(126, 20);
             this.IntegrTTextBox.TabIndex = 0;
@@ -48,7 +53,7 @@
             // 
             // AverageTTextBox
             // 
-            this.AverageTTextBox.Location = new System.Drawing.Point(110, 36);
+            this.AverageTTextBox.Location = new System.Drawing.Point(107, 92);
             this.AverageTTextBox.Name = "AverageTTextBox";
             this.AverageTTextBox.Size = new System.Drawing.Size(126, 20);
             this.AverageTTextBox.TabIndex = 1;
@@ -56,7 +61,7 @@
             // 
             // SumTextBox
             // 
-            this.SumTextBox.Location = new System.Drawing.Point(110, 62);
+            this.SumTextBox.Location = new System.Drawing.Point(107, 118);
             this.SumTextBox.Name = "SumTextBox";
             this.SumTextBox.Size = new System.Drawing.Size(126, 20);
             this.SumTextBox.TabIndex = 2;
@@ -64,7 +69,7 @@
             // 
             // BoxcarWidthTextBox
             // 
-            this.BoxcarWidthTextBox.Location = new System.Drawing.Point(110, 88);
+            this.BoxcarWidthTextBox.Location = new System.Drawing.Point(107, 144);
             this.BoxcarWidthTextBox.Name = "BoxcarWidthTextBox";
             this.BoxcarWidthTextBox.Size = new System.Drawing.Size(126, 20);
             this.BoxcarWidthTextBox.TabIndex = 3;
@@ -73,7 +78,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(9, 65);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(83, 13);
             this.label1.TabIndex = 4;
@@ -82,7 +87,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 39);
+            this.label2.Location = new System.Drawing.Point(9, 95);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(47, 13);
             this.label2.TabIndex = 5;
@@ -91,7 +96,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 65);
+            this.label3.Location = new System.Drawing.Point(9, 121);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(28, 13);
             this.label3.TabIndex = 6;
@@ -100,17 +105,70 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 91);
+            this.label4.Location = new System.Drawing.Point(9, 147);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(71, 13);
             this.label4.TabIndex = 7;
             this.label4.Text = "Boxcar Width";
             // 
+            // OKButton
+            // 
+            this.OKButton.Location = new System.Drawing.Point(28, 174);
+            this.OKButton.Name = "OKButton";
+            this.OKButton.Size = new System.Drawing.Size(75, 23);
+            this.OKButton.TabIndex = 8;
+            this.OKButton.Text = "Ok";
+            this.OKButton.UseVisualStyleBackColor = true;
+            this.OKButton.Click += new System.EventHandler(this.OKButton_Click);
+            // 
+            // ButtonCancel
+            // 
+            this.ButtonCancel.Location = new System.Drawing.Point(135, 174);
+            this.ButtonCancel.Name = "ButtonCancel";
+            this.ButtonCancel.Size = new System.Drawing.Size(75, 23);
+            this.ButtonCancel.TabIndex = 9;
+            this.ButtonCancel.Text = "Cancel";
+            this.ButtonCancel.UseVisualStyleBackColor = true;
+            this.ButtonCancel.Click += new System.EventHandler(this.CancelButton_Click);
+            // 
+            // indexComboBox
+            // 
+            this.indexComboBox.FormattingEnabled = true;
+            this.indexComboBox.Location = new System.Drawing.Point(107, 35);
+            this.indexComboBox.Name = "indexComboBox";
+            this.indexComboBox.Size = new System.Drawing.Size(126, 21);
+            this.indexComboBox.TabIndex = 10;
+            this.indexComboBox.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
+            // IndexLabel
+            // 
+            this.IndexLabel.AutoSize = true;
+            this.IndexLabel.Location = new System.Drawing.Point(2, 40);
+            this.IndexLabel.Name = "IndexLabel";
+            this.IndexLabel.Size = new System.Drawing.Size(99, 13);
+            this.IndexLabel.TabIndex = 11;
+            this.IndexLabel.Text = "Spectrometer Index";
+            // 
+            // SetDefaultButton
+            // 
+            this.SetDefaultButton.Location = new System.Drawing.Point(107, 6);
+            this.SetDefaultButton.Name = "SetDefaultButton";
+            this.SetDefaultButton.Size = new System.Drawing.Size(126, 23);
+            this.SetDefaultButton.TabIndex = 12;
+            this.SetDefaultButton.Text = "Set Default";
+            this.SetDefaultButton.UseVisualStyleBackColor = true;
+            this.SetDefaultButton.Click += new System.EventHandler(this.SetDefaultButton_Click);
+            // 
             // SpectForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(246, 122);
+            this.ClientSize = new System.Drawing.Size(246, 201);
+            this.Controls.Add(this.SetDefaultButton);
+            this.Controls.Add(this.IndexLabel);
+            this.Controls.Add(this.indexComboBox);
+            this.Controls.Add(this.ButtonCancel);
+            this.Controls.Add(this.OKButton);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -136,5 +194,10 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button OKButton;
+        private System.Windows.Forms.Button ButtonCancel;
+        private System.Windows.Forms.ComboBox indexComboBox;
+        private System.Windows.Forms.Label IndexLabel;
+        private System.Windows.Forms.Button SetDefaultButton;
     }
 }

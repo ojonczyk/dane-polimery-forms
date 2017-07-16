@@ -23,11 +23,10 @@ namespace dane_polimery_forms
         int elapsedTime;
         int singleExpTime = 0;
         int expNumber = 0;
-        int dataReadCounter = 0;
-        int specIntegrTime;
-        int specAverage;
-        int specSum;
-        int specBoxcar;
+
+        public int specIntegrTime, specAverage, specSum, specBoxcar, specIndex;
+
+        Spectrometer spectrometer;
 
         DateTime dateOfStart;
         DateTime dateOfEnd;
@@ -36,15 +35,17 @@ namespace dane_polimery_forms
         bool fileChosen = false;
 
         String filePath = null;
-        XDocument doc = null;
 
+        StreamWriter eofStream;
+        OmniDriver.NETWrapper wrapper;
 
         public MainWindow()
         {
             InitializeComponent();
-            widmo.Series[0].Points.DataBindY(DataReader.GetData());
+            widmo.Series[0].Points.DataBindY(Spectrometer.GetData());
             frequencyTextBox.Text = "1";
             commandsTextBox.Enabled = false;
+            wrapper = new OmniDriver.NETWrapper();
         }
 
         public void SetCommands(ArrayList _commands)
@@ -110,16 +111,22 @@ namespace dane_polimery_forms
             ProgressLabel.Text = "Postęp: "+(int)progress+"%";
             ExpNumberLabel.Text = "Krok nr: " + (expNumber + 1);
 
-            doc.Root.Add(new XElement("blok",
-                        new XAttribute("krok_nr",expNumber+1),
+            //getdata from spectrometr
+
+            double[] spectrumData = spectrometer.GetSpectrum();
+            widmo.Series[0].Points.DataBindY(spectrumData);
+
+
+            XElement currentElement = new XElement("blok",
+                        new XAttribute("krok_nr", expNumber + 1),
                         new XElement("czas", (DateTime.Now - dateOfStart).TotalSeconds.ToString("0.####")),
                         new XElement("przeplyw_1", ((int[])commands[expNumber])[1]),
                         new XElement("przeplyw_procent", ((int[])commands[expNumber])[2]),
                         new XElement("nr_butelki", ((int[])commands[expNumber])[3]),
-                        new XElement("pomiar", string.Join(", ",DataReader.GetData()))
-                    ));
+                        new XElement("pomiar", string.Join("; ", spectrumData))
+                    );
+            eofStream.Write(Environment.NewLine+currentElement.ToString()+Environment.NewLine);
 
-            //getdata from spectrometr
             if (elapsedTime <= timeSum)
             {
                 if(elapsedTime <= singleExpTime)
@@ -131,7 +138,6 @@ namespace dane_polimery_forms
                     ++expNumber;
                     singleExpTime += ((int[])commands[expNumber])[0];
                     commentTextBox.Text += "singleExpTime["+expNumber+"]: " + singleExpTime + Environment.NewLine;
-                    dataReadCounter = 0;
                     timer.Enabled = true;
                 }
             } else
@@ -153,20 +159,22 @@ namespace dane_polimery_forms
                 data.Clear();
             }
 
+            spectrometer = new Spectrometer(ref wrapper, specIndex, specIntegrTime, specAverage, specSum, specBoxcar);
+            //clear the file
+            File.Create(filePath).Close();
+            eofStream = File.AppendText(filePath);
+            eofStream.Write("<?xml version=\"1.0\" encoding=\"utf-8\"?>"+Environment.NewLine+ "<eksperymenty>" + Environment.NewLine + "<komentarz>"
+                +Environment.NewLine+commentTextBox.Text+"</komentarz> ");
+
             data = new ArrayList();
             timeSum = 0;
             elapsedTime = 0;
-            dataReadCounter = 0;
             expNumber = 0;
 
             ProgressLabel.Visible = true;
             ExpNumberLabel.Visible = true;
             frequencyTextBox.Enabled = false;
             timer.Interval = frequency*1000;
-
-            doc = new XDocument();
-            XElement root = new XElement("eksperymenty", new XElement("komentarz", commentTextBox.Text));
-            doc.Add(root);
 
             foreach(int[] commandLine in commands)
             {
@@ -190,19 +198,52 @@ namespace dane_polimery_forms
             commentTextBox.Text += dateOfEnd = DateTime.Now;
             ProgressLabel.Visible = false;
             ExpNumberLabel.Visible = false;
-
-            doc.Save(filePath);
+            eofStream.Write("</eksperymenty>");
+            eofStream.Close();
             System.Diagnostics.Process.Start(filePath);
         }
 
         private void ButtonSpect_Click(object sender, EventArgs e)
         {
-            Form spectForm = new SpectForm(ref specIntegrTime, ref specAverage, ref specSum, ref specBoxcar);
+            Form spectForm = null;
+            DialogResult result = MessageBox.Show("Load default options?", "Spectrometer Form", MessageBoxButtons.YesNo);
+            if(result == DialogResult.Yes)
+            {
+                spectForm = new SpectForm(ref wrapper,true);
+            } else if (result == DialogResult.No)
+            {
+                spectForm = new SpectForm(ref wrapper, false);
+            }
+            
+            spectForm.ShowDialog(this);
         }
     }
 
-    public class DataReader
+    public class Spectrometer
     {
+        int integrTime, average, sum, boxcar;
+        OmniDriver.NETWrapper wrapper;
+        int index = 0;
+        public Spectrometer(ref OmniDriver.NETWrapper _wrapper, int _specIndex, int _integrTime,int _average, int _Sum, int _Boxcar)
+        {
+            wrapper = _wrapper;
+            integrTime = _integrTime;
+            average = _average;
+            boxcar = _Boxcar;
+            sum = _Sum;
+            index = _specIndex;
+            //w microsekundach
+            wrapper.setIntegrationTime(index, integrTime * 1000000);
+            wrapper.setScansToAverage(index, average);
+            //suma?
+            wrapper.setBoxcarWidth(index, boxcar);
+        }
+
+        public double[] GetSpectrum()
+        {
+            return wrapper.getSpectrum(index);
+        }
+
         static int[] data = { 100, 110, 120, 130, 140, 130, 120, 110,100,90 };
 
         public static int[] GetData()
@@ -210,4 +251,5 @@ namespace dane_polimery_forms
             return data;
         }
     }
+
 }
