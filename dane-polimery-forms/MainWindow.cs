@@ -3,10 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -24,7 +27,7 @@ namespace dane_polimery_forms
         int singleExpTime = 0;
         int expNumber = 0;
 
-        public int specIntegrTime, specAverage, specSum, specBoxcar, specIndex;
+        public int specIntegrTime, specAverage, specBoxcar, specIndex;
 
         Spectrometer spectrometer;
 
@@ -38,14 +41,21 @@ namespace dane_polimery_forms
 
         StreamWriter eofStream;
         OmniDriver.NETWrapper wrapper;
+        ValvesController valvesCon;
+        FlowController flowCon;
+        public string FCPortName, ValvePortName;
 
         public MainWindow()
         {
             InitializeComponent();
-            widmo.Series[0].Points.DataBindY(Spectrometer.GetData());
+            widmo.Series[0].Points.DataBindY(Spectrometer.GetDefaultData());
             frequencyTextBox.Text = "1";
             commandsTextBox.Enabled = false;
             wrapper = new OmniDriver.NETWrapper();
+
+            //test FC
+            //flowCon = new FlowController("COM4");
+            //commentTextBox.Text+= Environment.NewLine + flowCon.Setpoint(1, 5500);
         }
 
         public void SetCommands(ArrayList _commands)
@@ -136,14 +146,25 @@ namespace dane_polimery_forms
                 else
                 {
                     ++expNumber;
-                    singleExpTime += ((int[])commands[expNumber])[0];
-                    commentTextBox.Text += "singleExpTime["+expNumber+"]: " + singleExpTime + Environment.NewLine;
+                    this.ApplyCommands(expNumber);
+                    commentTextBox.Text += "singleExpTime["+expNumber+"]: " + singleExpTime + " Valve: " + ((int[])commands[expNumber])[3]  +Environment.NewLine;
                     timer.Enabled = true;
                 }
             } else
             {
                 EndOfExperiment();
             }
+        }
+
+        private void ApplyCommands(int _expNumber)
+        {
+            singleExpTime += ((int[])commands[_expNumber])[0];
+            int sumOfFlow = ((int[])commands[_expNumber])[1];
+            float percentOfFlow = ((int[])commands[_expNumber])[2];
+            commentTextBox.Text+= Environment.NewLine + flowCon.SetpointAndOpen(1, (int)(( (sumOfFlow * percentOfFlow) )/100) );
+            flowCon.SetpointAndOpen(2, (int)(((sumOfFlow * (100 -percentOfFlow))) / 100));
+            valvesCon.OpenValve(((int[])commands[_expNumber])[3]);
+            Thread.Sleep(1000);
         }
 
         private void ButtonStart_Click(object sender, EventArgs e)
@@ -158,8 +179,9 @@ namespace dane_polimery_forms
             {
                 data.Clear();
             }
-
-            spectrometer = new Spectrometer(ref wrapper, specIndex, specIntegrTime, specAverage, specSum, specBoxcar);
+            valvesCon = new ValvesController(ValvePortName);
+            flowCon = new FlowController(FCPortName);
+            spectrometer = new Spectrometer(ref wrapper, specIndex, specIntegrTime, specAverage, specBoxcar);
             //clear the file
             File.Create(filePath).Close();
             eofStream = File.AppendText(filePath);
@@ -181,9 +203,10 @@ namespace dane_polimery_forms
                 timeSum += commandLine[0];
             }
 
-            singleExpTime = ((int[])commands[0])[0];
+            singleExpTime = 0;
+            this.ApplyCommands(0);
             commentTextBox.Text += "timeSUM: " + timeSum + Environment.NewLine;
-            commentTextBox.Text += "singleExpTime[" + expNumber + "]: " + singleExpTime + Environment.NewLine;
+            commentTextBox.Text += "singleExpTime[" + expNumber + "]: " + singleExpTime + " Valve: " + ((int[])commands[expNumber])[3] + Environment.NewLine;
             dateOfStart = DateTime.Now;
             timer.Enabled = true;
         }
@@ -195,6 +218,10 @@ namespace dane_polimery_forms
 
         private void EndOfExperiment()
         {
+            valvesCon.CloseValves();
+            Thread.Sleep(1000);
+            valvesCon.Close();
+            flowCon.Close();
             commentTextBox.Text += dateOfEnd = DateTime.Now;
             ProgressLabel.Visible = false;
             ExpNumberLabel.Visible = false;
@@ -221,21 +248,19 @@ namespace dane_polimery_forms
 
     public class Spectrometer
     {
-        int integrTime, average, sum, boxcar;
+        int integrTime, average, boxcar;
         OmniDriver.NETWrapper wrapper;
         int index = 0;
-        public Spectrometer(ref OmniDriver.NETWrapper _wrapper, int _specIndex, int _integrTime,int _average, int _Sum, int _Boxcar)
+        public Spectrometer(ref OmniDriver.NETWrapper _wrapper, int _specIndex, int _integrTime,int _average, int _Boxcar)
         {
             wrapper = _wrapper;
             integrTime = _integrTime;
             average = _average;
             boxcar = _Boxcar;
-            sum = _Sum;
             index = _specIndex;
             //w microsekundach
-            wrapper.setIntegrationTime(index, integrTime * 1000000);
+            wrapper.setIntegrationTime(index, integrTime * 1000);
             wrapper.setScansToAverage(index, average);
-            //suma?
             wrapper.setBoxcarWidth(index, boxcar);
         }
 
@@ -244,12 +269,138 @@ namespace dane_polimery_forms
             return wrapper.getSpectrum(index);
         }
 
-        static int[] data = { 100, 110, 120, 130, 140, 130, 120, 110,100,90 };
+        static int[] defaultData = { 100, 110, 120, 130, 140, 130, 120, 110,100,90 };
 
-        public static int[] GetData()
+        public static int[] GetDefaultData()
         {
-            return data;
+            return defaultData;
         }
     }
 
+}
+
+public class ValvesController
+{
+    SerialPort serial;
+
+    public ValvesController (String _portName)
+    {
+        serial = new SerialPort(_portName, 9600, Parity.None, 8, StopBits.One);
+    }
+
+    public ValvesController(String _portName, int _baudRate, Parity _parityBit, int _dataBits, StopBits _stopBits)
+    {
+        serial = new SerialPort(_portName,_baudRate,_parityBit,_dataBits,_stopBits);
+    }
+
+    byte[] GetBytes(string data)
+    {
+        return Encoding.ASCII.GetBytes(data);
+    }
+
+    public string SendAndReceive(string _data)
+    {
+        byte[] data = this.GetBytes(_data);
+        serial.Write(data, 0, data.Length);
+        Thread.Sleep(500);
+        return serial.ReadExisting();
+    }
+
+    public void OpenValve(int ValveNumber)
+    {
+        if (!serial.IsOpen)
+        {
+            this.Open();
+        }
+        int valve = (int)Math.Pow(2, ValveNumber - 1);
+
+        SendAndReceive("@10S0" + valve + valve + "3#");
+    }
+
+    public void CloseValves()
+    {
+        if (!serial.IsOpen)
+        {
+            this.Open();
+        }
+        SendAndReceive("@10S0000#");
+    }
+
+    public void Open()
+    {
+        serial.Open();
+    }
+
+    public void Close()
+    {
+        serial.Close();
+    }
+}
+
+public class FlowController
+{
+    SerialPort serial;
+
+    public FlowController(String _portName)
+    {
+        serial = new SerialPort(_portName, 9600, Parity.Odd, 7, StopBits.One);
+    }
+
+    public FlowController(String _portName, int _baudRate, Parity _parityBit, int _dataBits, StopBits _stopBits)
+    {
+        serial = new SerialPort(_portName, _baudRate, _parityBit, _dataBits, _stopBits);
+    }
+
+    byte[] GetBytes(string data)
+    {
+        return Encoding.ASCII.GetBytes(data);
+    }
+
+    public string SetpointAndOpen(int SetpointNumber,int value)
+    {
+        if (!serial.IsOpen)
+        {
+            this.Open();
+        }
+        byte[] data = this.GetBytes("SP" + SetpointNumber + ","+value + "\r");
+        serial.Write(data,0,data.Length);
+        Thread.Sleep(2000);
+        Debug.Write("Setpoint number: "+SetpointNumber+" value: "+value+Environment.NewLine);
+        //read?
+        /*byte[] data2 = this.GetBytes("VL"+(SetpointNumber-1)+",ON\r");
+        serial.Write(data2, 0, data2.Length);
+        Thread.Sleep(2000);
+        //wyczytaj rzeczywisty przeplyw
+        //  "?VL\r"  - a moze "?VL1"\r"
+        byte[] readData = this.GetBytes("?VL"+(SetpointNumber-1)+"\r");
+        serial.Write(readData,0,readData.Length);
+        Thread.Sleep(2000);
+        return serial.ReadExisting();*/
+        return "asd";
+    }
+
+    public string Setpoint(int SetpointNumber, int value)
+    {
+        if (!serial.IsOpen)
+        {
+            this.Open();
+        }
+        byte[] data = this.GetBytes("SP" + SetpointNumber + "," + value + "\r");
+        serial.Write(data, 0, data.Length);
+        Thread.Sleep(2000);
+        byte[] data2 = this.GetBytes("?SP" + SetpointNumber + "\r");
+        serial.Write(data2, 0, data2.Length);
+        Thread.Sleep(2000);
+        return serial.ReadExisting();
+    }
+
+    public void Open()
+    {
+        serial.Open();
+    }
+
+    public void Close()
+    {
+        serial.Close();
+    }
 }

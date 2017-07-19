@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,16 +18,21 @@ namespace dane_polimery_forms
     public partial class SpectForm : Form
     {
         String path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\My Spectrometer Options";
-        int tmpIndex = 0,tmpIntegrTime = 1, tmpAverage = 1, tmpSum = 1, tmpBoxcar = 1;
+        int tmpIndex = 0,tmpIntegrTime = 1, tmpAverage = 1, tmpBoxcar = 1;
+        String tmpValvePortName,tmpFCPortName;
 
         public SpectForm(ref OmniDriver.NETWrapper wrapper, bool loadDefaults)
         {
             wrapper.openAllSpectrometers();
             InitializeComponent();
+
             for (int i = 0; i < wrapper.getNumberOfSpectrometersFound(); ++i)
             {
                 indexComboBox.Items.Add(wrapper.getSerialNumber(i) + "(Index: " + i + ")");
             }
+            String[] ports = SerialPort.GetPortNames();
+            valveComboBox.Items.AddRange(ports);
+            FCComboBox.Items.AddRange(ports);
 
             //wczytaj default
             if (loadDefaults)
@@ -36,14 +42,25 @@ namespace dane_polimery_forms
                 indexComboBox.SelectedIndex = Int32.Parse(options.Element("Index").Value);
                 IntegrTTextBox.Text = (string)options.Element("Integration_Time").Value;
                 AverageTTextBox.Text = (string)options.Element("Average").Value;
-                SumTextBox.Text = (string)options.Element("Sum").Value;
                 BoxcarWidthTextBox.Text = (string)options.Element("Boxcar_Width").Value;
+                valveComboBox.SelectedItem = (string)options.Element("Valve_port_name").Value;
+                FCComboBox.SelectedItem = (string)options.Element("FC_port_name").Value;
             }
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void indexComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             tmpIndex = indexComboBox.SelectedIndex;
+        }
+
+        private void ValveComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            tmpValvePortName = (string)valveComboBox.SelectedItem;
+        }
+
+        private void FCComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            tmpFCPortName = (string)FCComboBox.SelectedItem;
         }
 
         private void IntegrTTextBox_TextChanged(object sender, EventArgs e)
@@ -68,8 +85,9 @@ namespace dane_polimery_forms
                 new XElement("Index",tmpIndex),
                 new XElement("Integration_Time",tmpIntegrTime),
                 new XElement("Average",tmpAverage),
-                new XElement("Sum",tmpSum),
-                new XElement("Boxcar_Width",tmpBoxcar)
+                new XElement("Boxcar_Width",tmpBoxcar),
+                new XElement("Valve_port_name",tmpValvePortName),
+                new XElement("FC_port_name",tmpFCPortName)
                 ));
             ;
             if(!Directory.Exists(path))
@@ -78,14 +96,6 @@ namespace dane_polimery_forms
             }
             doc.Save(path+"\\default.xml");
             MessageBox.Show("Set default options!","Set Default", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void SumTextBox_TextChanged(object sender, EventArgs e)
-        {
-            if (Int32.TryParse(SumTextBox.Text, out tmpSum) == false)
-            {
-                //error
-            }
         }
 
         private void BoxcarWidthTextBox_TextChanged(object sender, EventArgs e)
@@ -106,8 +116,9 @@ namespace dane_polimery_forms
             ((MainWindow)this.Owner).specIndex = tmpIndex;
             ((MainWindow)this.Owner).specIntegrTime = tmpIntegrTime;
             ((MainWindow)this.Owner).specAverage = tmpAverage;
-            ((MainWindow)this.Owner).specSum = tmpSum;
             ((MainWindow)this.Owner).specBoxcar = tmpBoxcar;
+            ((MainWindow)this.Owner).FCPortName = tmpFCPortName;
+            ((MainWindow)this.Owner).ValvePortName = tmpValvePortName;
             this.Close();
         }
     }
