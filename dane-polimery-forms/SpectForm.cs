@@ -37,18 +37,25 @@ namespace dane_polimery_forms
             //wczytaj default
             if (loadDefaults)
             {
-                XDocument doc = XDocument.Load(path + "\\default.xml");
-                var options = doc.Root;
-                indexComboBox.SelectedIndex = Int32.Parse(options.Element("Index").Value);
-                IntegrTTextBox.Text = (string)options.Element("Integration_Time").Value;
-                AverageTTextBox.Text = (string)options.Element("Average").Value;
-                BoxcarWidthTextBox.Text = (string)options.Element("Boxcar_Width").Value;
-                valveComboBox.SelectedItem = (string)options.Element("Valve_port_name").Value;
-                FCComboBox.SelectedItem = (string)options.Element("FC_port_name").Value;
+                try
+                {
+                    XDocument doc = XDocument.Load(path + "\\default.xml");
+                    var options = doc.Root;
+                    indexComboBox.SelectedIndex = Int32.Parse(options.Element("Index").Value);
+                    IntegrTTextBox.Text = (string)options.Element("Integration_Time").Value;
+                    AverageTTextBox.Text = (string)options.Element("Average").Value;
+                    BoxcarWidthTextBox.Text = (string)options.Element("Boxcar_Width").Value;
+                    valveComboBox.SelectedItem = (string)options.Element("Valve_port_name").Value;
+                    FCComboBox.SelectedItem = (string)options.Element("FC_port_name").Value;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("Couldn't load default options.", "Default options error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
-        private void indexComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void IndexComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             tmpIndex = indexComboBox.SelectedIndex;
         }
@@ -119,6 +126,7 @@ namespace dane_polimery_forms
             ((MainWindow)this.Owner).specBoxcar = tmpBoxcar;
             ((MainWindow)this.Owner).FCPortName = tmpFCPortName;
             ((MainWindow)this.Owner).ValvePortName = tmpValvePortName;
+            ((MainWindow)this.Owner).spectChosen = true;
             this.Close();
         }
     }

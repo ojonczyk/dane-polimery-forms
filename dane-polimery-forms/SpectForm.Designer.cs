@@ -87,7 +87,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(9, 95);
+            this.label2.Location = new System.Drawing.Point(47, 95);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(47, 13);
             this.label2.TabIndex = 5;
@@ -96,7 +96,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(9, 121);
+            this.label4.Location = new System.Drawing.Point(23, 121);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(71, 13);
             this.label4.TabIndex = 7;
@@ -133,7 +133,7 @@
             this.indexComboBox.Name = "indexComboBox";
             this.indexComboBox.Size = new System.Drawing.Size(126, 21);
             this.indexComboBox.TabIndex = 10;
-            this.indexComboBox.SelectedIndexChanged += new System.EventHandler(this.indexComboBox_SelectedIndexChanged);
+            this.indexComboBox.SelectedIndexChanged += new System.EventHandler(this.IndexComboBox_SelectedIndexChanged);
             // 
             // IndexLabel
             // 

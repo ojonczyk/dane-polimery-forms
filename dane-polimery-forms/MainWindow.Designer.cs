@@ -94,7 +94,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(100, 23);
             this.button1.TabIndex = 4;
-            this.button1.Text = "Load Command";
+            this.button1.Text = "Load commands";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.ButtonCommands_Click);
             // 
@@ -102,11 +102,11 @@
             // 
             this.frequencyLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.frequencyLabel.AutoSize = true;
-            this.frequencyLabel.Location = new System.Drawing.Point(365, 86);
+            this.frequencyLabel.Location = new System.Drawing.Point(357, 86);
             this.frequencyLabel.Name = "frequencyLabel";
-            this.frequencyLabel.Size = new System.Drawing.Size(156, 13);
+            this.frequencyLabel.Size = new System.Drawing.Size(172, 13);
             this.frequencyLabel.TabIndex = 5;
-            this.frequencyLabel.Text = "Odstęp odczytu spektrometru(s)";
+            this.frequencyLabel.Text = "Spectrometer reading frequency (s)";
             // 
             // frequencyTextBox
             // 
@@ -121,11 +121,11 @@
             // 
             this.outfileLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outfileLabel.AutoSize = true;
-            this.outfileLabel.Location = new System.Drawing.Point(430, 56);
+            this.outfileLabel.Location = new System.Drawing.Point(442, 56);
             this.outfileLabel.Name = "outfileLabel";
-            this.outfileLabel.Size = new System.Drawing.Size(91, 13);
+            this.outfileLabel.Size = new System.Drawing.Size(79, 13);
             this.outfileLabel.TabIndex = 7;
-            this.outfileLabel.Text = "Nazwa pliku OUT";
+            this.outfileLabel.Text = "Data output file";
             // 
             // outfileTextBox
             // 
@@ -162,11 +162,11 @@
             // 
             this.CommandLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.CommandLabel.AutoSize = true;
-            this.CommandLabel.Location = new System.Drawing.Point(470, 26);
+            this.CommandLabel.Location = new System.Drawing.Point(462, 26);
             this.CommandLabel.Name = "CommandLabel";
-            this.CommandLabel.Size = new System.Drawing.Size(51, 13);
+            this.CommandLabel.Size = new System.Drawing.Size(59, 13);
             this.CommandLabel.TabIndex = 11;
-            this.CommandLabel.Text = "Komendy";
+            this.CommandLabel.Text = "Commands";
             // 
             // commentTextBox
             // 
@@ -183,9 +183,9 @@
             this.CommentLabel.AutoSize = true;
             this.CommentLabel.Location = new System.Drawing.Point(12, 7);
             this.CommentLabel.Name = "CommentLabel";
-            this.CommentLabel.Size = new System.Drawing.Size(57, 13);
+            this.CommentLabel.Size = new System.Drawing.Size(51, 13);
             this.CommentLabel.TabIndex = 13;
-            this.CommentLabel.Text = "Komentarz";
+            this.CommentLabel.Text = "Comment";
             // 
             // statusStrip1
             // 
@@ -234,7 +234,7 @@
             this.ButtonSpect.Name = "ButtonSpect";
             this.ButtonSpect.Size = new System.Drawing.Size(172, 23);
             this.ButtonSpect.TabIndex = 17;
-            this.ButtonSpect.Text = "Spektrometr";
+            this.ButtonSpect.Text = "Spectrometer and Valves";
             this.ButtonSpect.UseVisualStyleBackColor = true;
             this.ButtonSpect.Click += new System.EventHandler(this.ButtonSpect_Click);
             // 
@@ -242,11 +242,11 @@
             // 
             this.LabelSpect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LabelSpect.AutoSize = true;
-            this.LabelSpect.Location = new System.Drawing.Point(430, 112);
+            this.LabelSpect.Location = new System.Drawing.Point(455, 117);
             this.LabelSpect.Name = "LabelSpect";
-            this.LabelSpect.Size = new System.Drawing.Size(66, 13);
+            this.LabelSpect.Size = new System.Drawing.Size(69, 13);
             this.LabelSpect.TabIndex = 18;
-            this.LabelSpect.Text = "Konfiguracja";
+            this.LabelSpect.Text = "Configuration";
             // 
             // MainWindow
             // 
@@ -270,7 +270,7 @@
             this.Controls.Add(this.commandsTextBox);
             this.Controls.Add(this.widmo);
             this.Name = "MainWindow";
-            this.Text = "DataGrabber";
+            this.Text = "Main Window";
             ((System.ComponentModel.ISupportInitialize)(this.widmo)).EndInit();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();

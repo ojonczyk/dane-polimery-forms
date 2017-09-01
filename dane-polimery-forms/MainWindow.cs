@@ -21,7 +21,7 @@ namespace dane_polimery_forms
         ArrayList commands = null;
         ArrayList data;
 
-        int frequency = 200;
+        int frequency = 1;
         int timeSum;
         int elapsedTime;
         int singleExpTime = 0;
@@ -36,6 +36,7 @@ namespace dane_polimery_forms
 
         public bool commandsLoaded = false;
         bool fileChosen = false;
+        public bool spectChosen = false;
 
         String filePath = null;
 
@@ -53,9 +54,6 @@ namespace dane_polimery_forms
             commandsTextBox.Enabled = false;
             wrapper = new OmniDriver.NETWrapper();
 
-            //test FC
-            //flowCon = new FlowController("COM4");
-            //commentTextBox.Text+= Environment.NewLine + flowCon.Setpoint(1, 5500);
         }
 
         public void SetCommands(ArrayList _commands)
@@ -74,7 +72,8 @@ namespace dane_polimery_forms
         {
             if(Int32.TryParse(frequencyTextBox.Text, out frequency) == false){
                 var msgbox = MessageBox.Show("Wymagana jest liczba INT.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                frequencyTextBox.Text = frequency.ToString();
+                frequencyTextBox.Text = "2";
+                frequency = 2;
                 return;
             }
 
@@ -106,7 +105,6 @@ namespace dane_polimery_forms
                 {
                     fileChosen = true;
                     filePath = saveDialog.FileName;
-                    commentTextBox.Text += saveDialog.FileName + Environment.NewLine;
                     myStream.Close();
                 }
             }
@@ -147,7 +145,6 @@ namespace dane_polimery_forms
                 {
                     ++expNumber;
                     this.ApplyCommands(expNumber);
-                    commentTextBox.Text += "singleExpTime["+expNumber+"]: " + singleExpTime + " Valve: " + ((int[])commands[expNumber])[3]  +Environment.NewLine;
                     timer.Enabled = true;
                 }
             } else
@@ -161,17 +158,30 @@ namespace dane_polimery_forms
             singleExpTime += ((int[])commands[_expNumber])[0];
             int sumOfFlow = ((int[])commands[_expNumber])[1];
             float percentOfFlow = ((int[])commands[_expNumber])[2];
-            commentTextBox.Text+= Environment.NewLine + flowCon.SetpointAndOpen(1, (int)(( (sumOfFlow * percentOfFlow) )/100) );
+            flowCon.SetpointAndOpen(1, (int)(( (sumOfFlow * percentOfFlow) )/100) );
             flowCon.SetpointAndOpen(2, (int)(((sumOfFlow * (100 -percentOfFlow))) / 100));
             valvesCon.OpenValve(((int[])commands[_expNumber])[3]);
-            Thread.Sleep(1000);
+            Thread.Sleep(100);
         }
 
         private void ButtonStart_Click(object sender, EventArgs e)
         {
-            if( !(fileChosen & commandsLoaded))
+            string errorMsg = "";
+            if (!fileChosen)
             {
-                var msgbox = MessageBox.Show("Wypełnij wszystkie pola w okienku","Błąd",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                errorMsg += "Choose an output file." + Environment.NewLine;
+            }
+            if (!commandsLoaded)
+            {
+                errorMsg += "Commands were not loaded." + Environment.NewLine;
+            }
+            if (!spectChosen)
+            {
+                errorMsg += "Spectromenter is not configured." + Environment.NewLine;
+            }
+            if( !(fileChosen & commandsLoaded & spectChosen))
+            {
+                var msgbox = MessageBox.Show("Unable to start: "+Environment.NewLine+Environment.NewLine+errorMsg,"Błąd",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 return;
             }
 
@@ -205,8 +215,6 @@ namespace dane_polimery_forms
 
             singleExpTime = 0;
             this.ApplyCommands(0);
-            commentTextBox.Text += "timeSUM: " + timeSum + Environment.NewLine;
-            commentTextBox.Text += "singleExpTime[" + expNumber + "]: " + singleExpTime + " Valve: " + ((int[])commands[expNumber])[3] + Environment.NewLine;
             dateOfStart = DateTime.Now;
             timer.Enabled = true;
         }
@@ -364,19 +372,11 @@ public class FlowController
         }
         byte[] data = this.GetBytes("SP" + SetpointNumber + ","+value + "\r");
         serial.Write(data,0,data.Length);
-        Thread.Sleep(2000);
-        Debug.Write("Setpoint number: "+SetpointNumber+" value: "+value+Environment.NewLine);
-        //read?
-        /*byte[] data2 = this.GetBytes("VL"+(SetpointNumber-1)+",ON\r");
+        Thread.Sleep(100);
+        byte[] data2 = this.GetBytes("VL"+(SetpointNumber-1)+",ON\r");
         serial.Write(data2, 0, data2.Length);
-        Thread.Sleep(2000);
-        //wyczytaj rzeczywisty przeplyw
-        //  "?VL\r"  - a moze "?VL1"\r"
-        byte[] readData = this.GetBytes("?VL"+(SetpointNumber-1)+"\r");
-        serial.Write(readData,0,readData.Length);
-        Thread.Sleep(2000);
-        return serial.ReadExisting();*/
-        return "asd";
+        Thread.Sleep(100);
+        return serial.ReadExisting();
     }
 
     public string Setpoint(int SetpointNumber, int value)
