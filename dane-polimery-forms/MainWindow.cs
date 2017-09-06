@@ -32,7 +32,7 @@ namespace dane_polimery_forms
         Spectrometer spectrometer;
 
         DateTime dateOfStart;
-        DateTime dateOfEnd;
+        //DateTime dateOfEnd;
 
         public bool commandsLoaded = false;
         bool fileChosen = false;
@@ -53,7 +53,6 @@ namespace dane_polimery_forms
             frequencyTextBox.Text = "1";
             commandsTextBox.Enabled = false;
             wrapper = new OmniDriver.NETWrapper();
-
         }
 
         public void SetCommands(ArrayList _commands)
@@ -158,9 +157,24 @@ namespace dane_polimery_forms
             singleExpTime += ((int[])commands[_expNumber])[0];
             int sumOfFlow = ((int[])commands[_expNumber])[1];
             float percentOfFlow = ((int[])commands[_expNumber])[2];
+            if (sumOfFlow == 0)
+            {
+                valvesCon.OpenValve(((int[])commands[_expNumber])[3], 3);
+            }
+            else if (percentOfFlow == 100)
+            {
+                valvesCon.OpenValve(((int[])commands[_expNumber])[3], 1);
+            }
+            else if (percentOfFlow == 0)
+            {
+                valvesCon.OpenValve(((int[])commands[_expNumber])[3], 2);
+            }
+            else
+            {
+                valvesCon.OpenValve(((int[])commands[_expNumber])[3], 0);
+            }
             flowCon.SetpointAndOpen(1, (int)(( (sumOfFlow * percentOfFlow) )/100) );
             flowCon.SetpointAndOpen(2, (int)(((sumOfFlow * (100 -percentOfFlow))) / 100));
-            valvesCon.OpenValve(((int[])commands[_expNumber])[3]);
             Thread.Sleep(100);
         }
 
@@ -230,7 +244,7 @@ namespace dane_polimery_forms
             Thread.Sleep(1000);
             valvesCon.Close();
             flowCon.Close();
-            commentTextBox.Text += dateOfEnd = DateTime.Now;
+            //commentTextBox.Text += dateOfEnd = DateTime.Now;
             ProgressLabel.Visible = false;
             ExpNumberLabel.Visible = false;
             eofStream.Write("</eksperymenty>");
@@ -310,11 +324,11 @@ public class ValvesController
     {
         byte[] data = this.GetBytes(_data);
         serial.Write(data, 0, data.Length);
-        Thread.Sleep(500);
+        Thread.Sleep(100);
         return serial.ReadExisting();
     }
 
-    public void OpenValve(int ValveNumber)
+    public void OpenValve(int ValveNumber,int flow)
     {
         if (!serial.IsOpen)
         {
@@ -322,7 +336,24 @@ public class ValvesController
         }
         int valve = (int)Math.Pow(2, ValveNumber - 1);
 
-        SendAndReceive("@10S0" + valve + valve + "3#");
+        switch (flow)
+        {
+            case 0:
+                SendAndReceive("@10S0" + valve + valve + "3#");
+                break;
+            case 1:
+                SendAndReceive("@10S0" + valve + valve + "1#");
+                break;
+            case 2:
+                SendAndReceive("@10S0" + valve + valve + "2#");
+                break;
+            case 3:
+                SendAndReceive("@10S0" + valve + valve + "0#");
+                break;
+            default:
+                MessageBox.Show("Flow value invalid (can be 1,2,3).","Error", MessageBoxButtons.OK,MessageBoxIcon.Error);
+                break;
+        }
     }
 
     public void CloseValves()
@@ -364,7 +395,7 @@ public class FlowController
         return Encoding.ASCII.GetBytes(data);
     }
 
-    public string SetpointAndOpen(int SetpointNumber,int value)
+    public void SetpointAndOpen(int SetpointNumber,int value)
     {
         if (!serial.IsOpen)
         {
@@ -373,25 +404,32 @@ public class FlowController
         byte[] data = this.GetBytes("SP" + SetpointNumber + ","+value + "\r");
         serial.Write(data,0,data.Length);
         Thread.Sleep(100);
-        byte[] data2 = this.GetBytes("VL"+(SetpointNumber-1)+",ON\r");
+        byte[] data2 = this.GetBytes("VL"+SetpointNumber+",ON\r");
         serial.Write(data2, 0, data2.Length);
         Thread.Sleep(100);
-        return serial.ReadExisting();
+        /*test
+        serial.DataReceived += new SerialDataReceivedEventHandler(Serial_DataReceived);
+        byte[] data3 = this.GetBytes("?VL"+SetpointNumber+"\r");
+        serial.Write(data3, 0, data3.Length);
+        Thread.Sleep(100);
+        */
     }
 
-    public string Setpoint(int SetpointNumber, int value)
+    private void Serial_DataReceived(object sender, SerialDataReceivedEventArgs e)
+    {
+        string data = serial.ReadExisting();
+        MessageBox.Show(data);
+    }
+
+    public void CloseBothChannels()
     {
         if (!serial.IsOpen)
         {
             this.Open();
         }
-        byte[] data = this.GetBytes("SP" + SetpointNumber + "," + value + "\r");
+        byte[] data = this.GetBytes("VL0,OFF\r");
         serial.Write(data, 0, data.Length);
-        Thread.Sleep(2000);
-        byte[] data2 = this.GetBytes("?SP" + SetpointNumber + "\r");
-        serial.Write(data2, 0, data2.Length);
-        Thread.Sleep(2000);
-        return serial.ReadExisting();
+        Thread.Sleep(100);
     }
 
     public void Open()

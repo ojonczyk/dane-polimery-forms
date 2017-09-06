@@ -270,7 +270,7 @@
             this.Controls.Add(this.commandsTextBox);
             this.Controls.Add(this.widmo);
             this.Name = "MainWindow";
-            this.Text = "Main Window";
+            this.Text = "DAS Polymer Swelling";
             ((System.ComponentModel.ISupportInitialize)(this.widmo)).EndInit();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
